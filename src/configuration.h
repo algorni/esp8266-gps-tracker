@@ -9,8 +9,8 @@ typedef struct SystemConfiguration
     char AzureIoTHubConnectionString[192];
     int ReportingEnabled; //0 or 1
     int ReportingPeriod;
-    char WiFiSSID[16];
-    char WiFiKey[16];
+    char WiFiSSID[32];
+    char WiFiKey[32];
 } SystemConfiguration;
 
 #endif

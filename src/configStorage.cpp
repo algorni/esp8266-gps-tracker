@@ -2,6 +2,7 @@
 #include "configStorage.h"
 #include <ArduinoJson.h>          //https://github.com/bblanchon/ArduinoJson
 
+bool isMounted = false;
 
 void FormatStorage()
 {
@@ -11,31 +12,47 @@ void FormatStorage()
 
 bool InitializeSPIFFS()
 {
-    if (SPIFFS.begin()) {
-      Serial.println("mounted file system");
+    if (!isMounted)
+    {
+      if (SPIFFS.begin()) 
+      {
+        Serial.println("mounted file system");
 
-      return true;
+        return true;
+      }
+      else
+      {
+        Serial.println("failed to mount FS");
+
+        return false;
+      }
     }
     else
     {
-      Serial.println("failed to mount FS");
-
-      return false;
+      Serial.println("file system already mounted");
+      return true;
     }
 }
 
 void EndSPIFFS()
 {
-  FSInfo fsInfo;
-  SPIFFS.info(fsInfo);
+  if (isMounted)
+  {
+    FSInfo fsInfo;
+    SPIFFS.info(fsInfo);
 
-  Serial.print("Total FFS size: ");
-  Serial.print(fsInfo.totalBytes);
-  Serial.print("\r\nUsed Space: ");
-  Serial.print(fsInfo.usedBytes);
-  Serial.print("\r\n");
+    Serial.print("Total FFS size: ");
+    Serial.print(fsInfo.totalBytes);
+    Serial.print("\r\nUsed Space: ");
+    Serial.print(fsInfo.usedBytes);
+    Serial.print("\r\n");
 
-  SPIFFS.end();
+    SPIFFS.end();
+  }
+  else
+  {
+    Serial.println("file system already unmounted");
+  }
 }
 
 
@@ -93,25 +110,26 @@ bool CheckConfiguration()
   bool ok = false;
 
   if (SPIFFS.exists("/config.json")) {
+    //REDUCED CHECK Just if exist to reduce memory pressure
     //file exists, reading and loading
-    Serial.println("reading config file");
-    File configFile = SPIFFS.open("/config.json", "r");
-    if (configFile) {
-      Serial.println("opened config file");
-      size_t size = configFile.size();
+    //Serial.println("reading config file");
+    //File configFile = SPIFFS.open("/config.json", "r");
+    //if (configFile) {
+    //  Serial.println("opened config file");
+    //  size_t size = configFile.size();
       // Allocate a buffer to store contents of the file.
-      std::unique_ptr<char[]> buf(new char[size]);
-      configFile.readBytes(buf.get(), size);
+    //  std::unique_ptr<char[]> buf(new char[size]);
+    //  configFile.readBytes(buf.get(), size);
 
-      DynamicJsonBuffer jsonBuffer;
-      JsonObject& json = jsonBuffer.parseObject(buf.get());
-      json.printTo(Serial);
+    //  DynamicJsonBuffer jsonBuffer;
+    //  JsonObject& json = jsonBuffer.parseObject(buf.get());
+    //  json.printTo(Serial);
 
-      if (json.success()) {
-        Serial.println("\nparsed json");
+    //  if (json.success()) {
+    //    Serial.println("\nparsed json");
         ok = true;
-      }
-    }
+    //  }
+    //}
   }
   
   return ok;

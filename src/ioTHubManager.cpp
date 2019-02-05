@@ -4,7 +4,7 @@
 //#include <AzureIoTUtility.h>
 
 #include "gpsManager.h"
-#include "ledManager.h"
+//#include "ledManager.h"
 #include "configStorage.h"
 
 #include "ioTHubManager.h"
@@ -17,7 +17,7 @@ WITH_DATA(int, SatInView),
 WITH_DATA(double, Latitude),
 WITH_DATA(double, Longitude),
 WITH_DATA(float, hDoP),
-WITH_DATA(long, Time),
+WITH_DATA(float, Altitude),
 WITH_ACTION(TurnTrackingOn),
 WITH_ACTION(TurnTrackingOff),
 WITH_ACTION(SetTrackingFrequency, int, IntervalSeconds)
@@ -107,7 +107,7 @@ void sendMessageCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void* userCon
 
     (void)printf("Result Call Back Called! Result is: %s \r\n", ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
 
-    StartBlinking(1);
+    //StartBlinking(1);
 }
 
 
@@ -168,7 +168,7 @@ void SendGPSData(GPSPosition gpsPositionUpdate)
     positionUpdate->Latitude = gpsPositionUpdate.Lat;
     positionUpdate->Longitude = gpsPositionUpdate.Lon;
     positionUpdate->hDoP = gpsPositionUpdate.hDoP;
-    positionUpdate->Time = gpsPositionUpdate.Time;
+    positionUpdate->Altitude = gpsPositionUpdate.Altitude;
 
     if (positionUpdate == NULL)
     {
@@ -184,7 +184,7 @@ void SendGPSData(GPSPosition gpsPositionUpdate)
                 positionUpdate->Latitude, 
                 positionUpdate->Longitude,
                 positionUpdate->SatInView,
-                positionUpdate->Time,
+                positionUpdate->Altitude,
                 positionUpdate->hDoP) != CODEFIRST_OK)
         {
             (void)printf("Failed to serialize\r\n");
@@ -237,11 +237,11 @@ void DoIoTHubClientWork()
 {
     //IoTHubClient_LL_DoWork(iotHubClientHandle);
 
-    IOTHUB_CLIENT_STATUS Status;
+    //IOTHUB_CLIENT_STATUS Status;
 
-    while ((IoTHubClient_LL_GetSendStatus(iotHubClientHandle, &Status) == IOTHUB_CLIENT_OK) && (Status == IOTHUB_CLIENT_SEND_STATUS_BUSY))
-    {
+    //while ((IoTHubClient_LL_GetSendStatus(iotHubClientHandle, &Status) == IOTHUB_CLIENT_OK) && (Status == IOTHUB_CLIENT_SEND_STATUS_BUSY))
+    //{
         IoTHubClient_LL_DoWork(iotHubClientHandle);
-        ThreadAPI_Sleep(50);
-    }
+        ThreadAPI_Sleep(100);
+    //}
 }

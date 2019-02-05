@@ -7,23 +7,29 @@ ESP8266WebServer server(80);
 
 void handle_root() 
 {
-  server.send(200, "text/plain", 
-  "Hello from the GPS Tracker\nGet Actual Position with /position or get-update configuration /config");
-  delay(100);
+    Serial.println("handle_root");
+
+    server.send(200, "text/plain", 
+    "Hello from the GPS Tracker\nGet Actual Position with /position or get-update configuration /config");
+    delay(100);
 }
 
 void handle_getConfig()
 {
-    InitializeSPIFFS();
+    Serial.println("handle_getConfig");
+
+    //InitializeSPIFFS();
     String configString;
     LoadConfigString(configString);
-    EndSPIFFS();
+    //EndSPIFFS();
 
     server.send(200, "application/json", configString);
 }
 
 void handle_rebootRequest()
 {
+    Serial.println("handle_rebootRequest");
+    
     server.send(200, "text/plain", "Rebooting in 2 seconds...");
     delay(2000);
     ESP.restart();
@@ -31,27 +37,31 @@ void handle_rebootRequest()
 
 void handle_updateConfig()
 {
-      if (server.hasArg("plain")== false){ //Check if body received
-            server.send(200, "text/plain", "Body not received");
-            return;
-      }
+    Serial.println("handle_updateConfig");
 
-      String body = server.arg("plain");
- 
-      //now save the new configuration uploaded by the API as it it...  no super check here...
-      InitializeSPIFFS();
-      SaveConfig(body);
-      EndSPIFFS();
+    if (server.hasArg("plain")== false){ //Check if body received
+        server.send(200, "text/plain", "Body not received");
+        return;
+    }
 
-      String message = "Config Saved:\n";
-             message += body;
-             message += "\n";
- 
-      server.send(200, "text/plain", message);
-      Serial.println(message);
+    String body = server.arg("plain");
+
+    //now save the new configuration uploaded by the API as it it...  no super check here...
+    //InitializeSPIFFS();
+    SaveConfig(body);
+    //EndSPIFFS();
+
+    String message = "Config Saved:\n";
+            message += body;
+            message += "\n";
+
+    server.send(200, "text/plain", message);
+    Serial.println(message);
 }
 
 void hangle_getPosition() { //Handler
+
+    Serial.println("hangle_getPosition");
 
     String message;
    
@@ -65,14 +75,12 @@ void hangle_getPosition() { //Handler
     json["Lon"] = latestPosition.Lon;
     json["SatInView"] = latestPosition.SatInView;
     json["hDoP"] = latestPosition.hDoP;
-    json["Time"] = latestPosition.Time;
+    json["Altitude"] = latestPosition.Altitude;
 
     json.printTo(message);
 
     server.send(200, "application/json", message);       //Response to the HTTP request
 }
-
-
 
 void InitAPIServer()
 {

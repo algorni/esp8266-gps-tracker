@@ -49,8 +49,10 @@ void checkPositionUpdateFromGPS()
       int satInView = gps.satellites.value();
       double latitude = gps.location.lat();
       double longitude = gps.location.lng();
+      float altitude = gps.altitude.meters();
       double hdop = gps.hdop.hdop();
 
+/*
       Serial.print(F("\nLocation: ")); 
       Serial.print(latitude, 6);
       Serial.print(F(","));
@@ -59,17 +61,18 @@ void checkPositionUpdateFromGPS()
       Serial.print(satInView, 6);
       Serial.print(F(" - hdop: "));
       Serial.print(hdop, 6);
-      Serial.print(F(" - time: "));
-      Serial.print(gps.time.value(), 6);
+      Serial.print(F(" - altitude: "));
+      Serial.print(altitude, 6);
       Serial.println();
+*/
 
       GPSPosition gpsPosition;
-
+      
       gpsPosition.Lat = latitude;
       gpsPosition.Lon = longitude;
       gpsPosition.SatInView = satInView;
       gpsPosition.hDoP = hdop;
-      gpsPosition.Time = gps.time.value();
+      gpsPosition.Altitude = altitude;
 
       if ( __gpsCallBack != NULL)
       {

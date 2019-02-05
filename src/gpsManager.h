@@ -7,7 +7,7 @@ typedef struct GPSPosition
     int SatInView;
     double Lat; 
     double Lon;
-    uint32 Time;
+    double Altitude;
     float hDoP;
 } GPSPosition;
 

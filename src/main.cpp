@@ -5,10 +5,11 @@
 #include "ntpCli.h"
 #include "gpsManager.h"
 #include "ioTHubManager.h"
-#include "ledManager.h"
+//#include "ledManager.h"
 #include "localApi.h"
 
 void gpsPositionCallback(GPSPosition position);
+void connectionTimeoutCallback();
 
 bool systemConfigIsValid = false;
 
@@ -16,7 +17,7 @@ void setup() {
       
   Serial.begin(115200);
 
-  StartBlinking(0.5);
+  //StartBlinking(0.5);
 
   Serial.println("System Started");
 
@@ -32,21 +33,34 @@ void setup() {
     SystemConfiguration systemConfig;
 
     LoadConfig(&systemConfig);
-    EndSPIFFS();
 
     Serial.println("Configuration was loaded properly...");
 
-    ConnectWiFiAP(systemConfig);
+    bool connected = ConnectWiFiAP(systemConfig);
 
-    InitUtcTime();
+    if ( connected )
+    {
+      InitUtcTime();
 
-    InitAPIServer();
+      InitAPIServer();
 
-    InitializeIoTHubConnection(systemConfig);
-   
-    StartGPS(gpsPositionCallback);
+      InitializeIoTHubConnection(systemConfig);
+    
+      StartGPS(gpsPositionCallback);
 
-    StartBlinking(1);
+      //StartBlinking(1);
+    }
+    else
+    {
+      systemConfigIsValid = false;
+
+      Serial.println("Wi Fi network not reachable. Starting in AP Mode...");
+
+      //start the WiFi AP mode and start the API Server just for waiting for the confituration
+      StartAPMode();
+
+      InitAPIServer_ConfigMode();
+    }
   }
   else
   {
@@ -72,7 +86,7 @@ void loop() {
   else
   {
     Serial.print("-");
-    delay(1000);
+    delay(250);
   }
 
   HandleClientRequest();
@@ -80,10 +94,11 @@ void loop() {
 
 void gpsPositionCallback(GPSPosition position)
 {
-  StartBlinking(0.05);
+  //StartBlinking(0.05);
 
   Serial.println("position callback");
   
   SendGPSData(position);
 }
+
 

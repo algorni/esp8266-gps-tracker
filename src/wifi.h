@@ -4,7 +4,7 @@
 #include <ESP8266WiFi.h>
 #include <configStorage.h>
 
-void ConnectWiFiAP(SystemConfiguration configuration);
+bool ConnectWiFiAP(SystemConfiguration configuration);
 void StartAPMode();
 
 #endif
