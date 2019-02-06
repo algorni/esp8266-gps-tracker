@@ -11,7 +11,11 @@
 void gpsPositionCallback(GPSPosition position);
 void connectionTimeoutCallback();
 
+SystemConfiguration systemConfig;
+
 bool systemConfigIsValid = false;
+
+unsigned long lastSentPositionTimeStamp = 0;
 
 void setup() {
       
@@ -30,8 +34,6 @@ void setup() {
 
   if ( systemConfigIsValid )
   {
-    SystemConfiguration systemConfig;
-
     LoadConfig(&systemConfig);
 
     Serial.println("Configuration was loaded properly...");
@@ -94,11 +96,25 @@ void loop() {
 
 void gpsPositionCallback(GPSPosition position)
 {
+  Serial.println("position callback");
   //StartBlinking(0.05);
 
-  Serial.println("position callback");
-  
-  SendGPSData(position);
+  unsigned long m = millis();
+  unsigned long delta = m - lastSentPositionTimeStamp;
+  unsigned long repPeriod = systemConfig.ReportingPeriod  * 1000.0;
+
+  if ( delta > repPeriod)
+  {
+    Serial.println("G");
+
+    lastSentPositionTimeStamp = m;
+
+    SendGPSData(position);
+  }
+  else
+  {
+    Serial.println("O");
+  }
 }
 
 
